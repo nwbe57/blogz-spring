@@ -29,7 +29,9 @@ public class Post extends AbstractEntity {
 		this.body = body;
 		this.author = author;
 		this.created = new Date();
-		this.updated();
+		//this.updated();
+		this.modified = this.created;
+		
 		
 		author.addPost(this);
 	}
@@ -43,7 +45,7 @@ public class Post extends AbstractEntity {
 
 	public void setTitle(String title) {
 		this.title = title;
-		this.updated();
+		//this.updated();
 	}
 
 	@NotNull
@@ -54,7 +56,7 @@ public class Post extends AbstractEntity {
 
 	public void setBody(String body) {
 		this.body = body;
-		this.updated();
+		//this.updated();
 	}
 	
 	@ManyToOne
@@ -85,13 +87,13 @@ public class Post extends AbstractEntity {
 		return modified;
 	}
 	
-	@SuppressWarnings("unused")
-	private void setModified(Date modified) {
+	//@SuppressWarnings("unused")
+	public void setModified(Date modified) {
 		this.modified = modified;
 	}
 	
-	private void updated() {
-		this.modified = new Date();
-	}
+//	private void updated() {
+//		this.modified = new Date();
+//	}
 	
 }

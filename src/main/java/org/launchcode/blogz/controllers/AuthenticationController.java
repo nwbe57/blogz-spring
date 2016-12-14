@@ -1,5 +1,7 @@
 package org.launchcode.blogz.controllers;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class AuthenticationController extends AbstractController {
 	
+
+	
 	@RequestMapping(value = "/signup", method = RequestMethod.GET)
 	public String signupForm() {
 		return "signup";
@@ -21,8 +25,40 @@ public class AuthenticationController extends AbstractController {
 	public String signup(HttpServletRequest request, Model model) {
 		
 		// TODO - implement signup
+		String username = request.getParameter("username");
+		String password = request.getParameter("password");
+		String verify = request.getParameter("verify");
 		
-		return "redirect:blog/newpost";
+		model.addAttribute("username", username);
+		
+		
+		if(!User.isValidUsername(username)){
+			String username_error = "Not a valid username";
+			model.addAttribute("username_error", username_error);
+			return "signup";
+		}
+		 
+		else if(!User.isValidPassword(password)){
+			final String password_error = "Not a valid password";
+			model.addAttribute("password_error", password_error);
+			return "signup";
+		}
+		
+		else if(!password.equals(verify)){
+			final String verify_error = "Passwords must match";
+			model.addAttribute("verify_error", verify_error);
+			return "signup";
+		
+		} else {
+	
+			User user = new User(username, password);
+			userDao.save(user);
+			HttpSession session = request.getSession();
+			setUserInSession(session, user);
+			
+			return "redirect:blog/newpost";
+		}
+		
 	}
 	
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
@@ -34,9 +70,39 @@ public class AuthenticationController extends AbstractController {
 	public String login(HttpServletRequest request, Model model) {
 		
 		// TODO - implement login
+		String password = request.getParameter("password");
+		String username = request.getParameter("username");
+		String error = request.getParameter("error");
 		
-		return "redirect:blog/newpost";
-	}
+		model.addAttribute("username", username);
+		
+		User user = userDao.findByUsername(username);
+		
+		List<User> users = userDao.findAll();
+	
+		
+		if(!users.contains(user)){
+			
+			error = "Invalid Usename";
+			model.addAttribute("error", error);
+	    	return "login";
+	    	
+		} else if(!user.isMatchingPassword(password)){
+			
+			error = "Invalid Password";
+			model.addAttribute("error", error);
+			return "login";
+		
+		} else {
+			HttpSession session = request.getSession();
+			setUserInSession(session, user);
+		
+			return "redirect:blog/newpost";
+		}	
+		
+}
+		
+	
 	
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)
 	public String logout(HttpServletRequest request){
